@@ -1,7 +1,21 @@
+import prisma from "@/prisma/prisma/db";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
+import * as z from "zod";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeStore } from "@langchain/pinecone";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { pc } from "@/lib/pinecone";
+
  
-const f = createUploadthing();
+const f = createUploadthing({
+  errorFormatter: (err) => {
+    return {
+      message: err.message,
+      zodError: err.cause instanceof z.ZodError ? err.cause.flatten() : null,
+    };
+  },
+});
  
 const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
  
@@ -22,6 +36,46 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
+
+      const createdFile = await prisma.file.create({
+        data: {
+            name: file.name,
+            uploadStatus: "SUCCESS",
+            url: file.url,
+            key: file.key,
+            userId: metadata.userId
+        }
+      })
+
+      // indexing pdf
+      try {
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        
+        const loader =  new PDFLoader(blob);
+
+        const pageLevelDocs = await loader.load();
+        // const pagesAmt = pageLevelDocs.length;
+
+        // Vectorize and index pdf
+        const pineconeIndex = pc.index(process.env.PINECONE_INDEX!)
+
+        const embeddings = new OpenAIEmbeddings();
+
+        await PineconeStore.fromDocuments(
+          pageLevelDocs,
+          embeddings,
+          {
+            pineconeIndex: pineconeIndex,
+            namespace: createdFile.id
+          }
+        )
+
+      } catch {
+        
+      }
+
+
       console.log("Upload complete for userId:", metadata.userId);
  
       console.log("file url", file.url);

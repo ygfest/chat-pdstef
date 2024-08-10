@@ -1,19 +1,39 @@
-// components/SidePanel.tsx
 "use client";
 
 import { FaBars, FaCommentAlt, FaUser, FaCog } from 'react-icons/fa';
 import { Button } from "@/components/ui/button";
-import React, { useContext, useState } from 'react';
-import UploadFile from '@/app/main/uploadfile';
+import React, { useContext, useState, useEffect } from 'react';
 import { SidePanelContext } from '@/app/context/SidePanelProvider';
-import { UploadButton, UploadDropzone } from '@/utils/uploadthing';
+import { UploadDropzone } from '@/utils/uploadthing';
+import { getAllFilesFromDb } from '@/prisma/actions/files';
 
+interface File {
+  id: string;
+  name: string;
+  uploadStatus: string; // Adjust this type if needed
+  url: string;
+  key: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+}
 
 const SidePanel = () => {
   const context = useContext(SidePanelContext);
-  
+  const [retrievedFiles, setRetrievedFiles] = useState<File[]>([]); // Adjusted type
 
+  useEffect(() => {
+    const fetchFiles = async () => {
+      try {
+        const files = await getAllFilesFromDb();
+        setRetrievedFiles(files); // Files are now of type File[]
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      }
+    };
 
+    fetchFiles();
+  }, []);
 
   if (!context) {
     throw new Error('SidePanel must be used within a SidePanelProvider');
@@ -33,43 +53,43 @@ const SidePanel = () => {
             <FaBars />
           </Button>
 
-         {isOpen && <UploadDropzone 
-          endpoint='profilePicture'
-          
-          appearance={{
-            container: {
-              border: '1px dotted white',
-              borderRadius: '1rem'
-
-            },
-            button: {
-              background: 'gray'
-            },
-            label: {
-              color: 'white'
-            } 
-          }}
-          onClientUploadComplete={(res) => {
-            // Do something with the response
-            console.log("Files: ", res);
-            alert(`Upload Completed: ${res[0].url}`);
-            setProfileUrl(res[0].url);
-          }}
-          onUploadError={(error: Error) => {
-            // Do something with the error.
-            alert(`ERROR! ${error.message}`);
-          }}
-           />} 
+          {isOpen && (
+            <UploadDropzone
+              endpoint='profilePicture'
+              appearance={{
+                container: {
+                  border: '1px dotted white',
+                  borderRadius: '1rem'
+                },
+                button: {
+                  background: 'gray'
+                },
+                label: {
+                  color: 'white'
+                }
+              }}
+              onClientUploadComplete={(res) => {
+                // Do something with the response
+                console.log("Files: ", res);
+                alert(`Upload Completed: ${res[0].url}`);
+                setProfileUrl(res[0].url);
+              }}
+              onUploadError={(error: Error) => {
+                // Do something with the error.
+                alert(`ERROR! ${error.message}`);
+              }}
+            />
+          )}
 
           <div className={`pt-[60px] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
             <p className="font-bold text-sm mb-2">Recent Convos</p>
           </div>
 
           <ul className="space-y-2">
-            {["Software Engineering", "Software Engineering", "Software Engineering", "Software Engineering"].map((text, index) => (
-              <li key={index} className="flex items-center">
+            {retrievedFiles.map((file) => (
+              <li key={file.id} className="flex items-center">
                 <FaCommentAlt className="mr-2" />
-                <span className={`transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>{text}</span>
+                <span className={`transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>{file.name}</span>
               </li>
             ))}
           </ul>

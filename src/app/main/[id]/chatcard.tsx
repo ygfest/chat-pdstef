@@ -13,7 +13,7 @@ const Chatcard = () => {
         </div>
       </div>
       <div className='flex flex-row w-full gap-2'>
-        <div className='flex items-center w-full h-12 px-4 bg-zinc-800 rounded-lg text-zinc-300 '>
+        <div className='flex items-center w-full min-h-12 h-auto px-4 bg-zinc-800 rounded-lg text-zinc-300 '>
           <input
           placeholder='Ask me something...'
           className='bg-inherit w-full'
