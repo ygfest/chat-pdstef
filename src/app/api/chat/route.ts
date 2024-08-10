@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const headers = new Headers(req.headers);
 
     // Example ObjectId for demonstration; in practice, use a valid ObjectId.
-    const fileId = new ObjectId("66b78a8a903ad7bf64f5f832"); // Use ObjectId here
+    const fileId = new ObjectId("66b79ca340ce92efc1a7402d"); // Use ObjectId here
 
     if (!fileId)
         return NextResponse.json("Bad request", { status: 400 });
