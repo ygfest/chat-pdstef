@@ -4,6 +4,7 @@ import Header from './header'
 import { columns } from './columns'
 import { DataTable } from './data-table'
 import { getAllFilesFromDb, getFileFromDb } from '@/prisma/actions/files'
+import ProgressBar from '@/components/progress-bar'
 
 const Dashboard = async () => {
   const retrievedFiles = await getAllFilesFromDb();

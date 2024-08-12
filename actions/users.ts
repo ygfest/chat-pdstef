@@ -4,5 +4,5 @@
 import prisma from "@/prisma/prisma/db";
 
 export async function getUser() {
-    return await prisma.file.findFirst();
+    return await prisma.user.findFirst();
 }

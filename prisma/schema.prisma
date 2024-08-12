@@ -16,7 +16,10 @@ model Post {
 
 model User {
   id    String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId String 
+  userId String
+  email String? @unique
+  password String?
+
   posts Post[]
   files File[]  // Bidirectional relation
   messages Message[]

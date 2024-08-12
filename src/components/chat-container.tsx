@@ -55,8 +55,8 @@ const ChatSection = ({ fileId }: { fileId: string }) => {
     <div className='flex flex-col w-full h-full justify-end gap-2'>
         { isFetching ? (
           <SkeletonTheme baseColor="#202020" highlightColor="#444">
-            <div className='flex flex-col gap-y-2 justify-center items-center h-[calc(100dvh-8rem)] max-h-calc(100dvh-8rem)]
-                          bg-zinc-800 rounded-lg border border-zinc-700 w-full'>
+            <div className='flex flex-col gap-y-2 justify-center items-center h-[calc(100dvh-12rem)] max-h-calc(100dvh-8rem)]
+                          bg-zinc-700 rounded-lg border border-zinc-700 w-full px-4'>
                   <div className='w-full mt-2 h-full rounded-md shadow px-4 overflow-auto'>
                     <Skeleton height={30} containerClassName="flex-1" count={30} className='mt-2'/>
                   </div>
@@ -89,7 +89,7 @@ const ChatSection = ({ fileId }: { fileId: string }) => {
         }
         <div>
   <form
-    className="flex w-full gap-2 items-end"
+    className="flex w-full h-full gap-2 items-end"
     onSubmit={async (e) => {
       handleSubmit(e, {
         options: { headers: { fileId: fileId } },
@@ -111,7 +111,7 @@ const ChatSection = ({ fileId }: { fileId: string }) => {
       disabled={isFetching || isLoading}
     >
       <div className="flex flex-col">
-        <span>Fucking</span>
+        <span></span>
         <span>Send</span>
       </div>
       <div className="flex items-center justify-center h-full">
