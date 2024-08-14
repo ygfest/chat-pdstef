@@ -19,7 +19,7 @@ export default function Home() {
             <CardDescription className="text-zinc-700 font-medium">Talk to your PDF files using generative AI.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-y-4">
-              <Link href="/dashboard">
+              <Link href="/sign-in">
                 <Button className="flex w-full ">
                   <span className="font-bold bg-gradient-to-r text-base from-emerald-400 via-emerald-500 to-lime-300 inline-block text-transparent bg-clip-text">
                     Get Started

@@ -6,6 +6,7 @@ import { FaRegEyeSlash, FaRegEye } from "react-icons/fa"; // Importing eye icons
 import { signIn } from "next-auth/react"; // Importing signIn function from next-auth for authentication.
 import { useRouter } from "next/navigation"; // Importing useRouter for client-side routing.
 import { toast } from "sonner"; // Importing toast for displaying notifications.
+import bcrypt from "bcrypt"
 
 export default function Page() { // Define a React functional component named Page.
   const router = useRouter(); // Initialize Next.js router for navigation.
@@ -30,22 +31,24 @@ export default function Page() { // Define a React functional component named Pa
     try {
       setIsSigningUp(true); // Set signing-up state to true to indicate loading.
 
-      // Attempt to sign in with the provided credentials.
-      const res = await signIn("credentials", {
-        redirect: false, // Prevent automatic redirection.
-        email: formValue.email, // Pass email to signIn function.
-        password: formValue.password, // Pass password to signIn function.
+      const res = await fetch('/api/sign-up', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formValue),
       });
-
-      if (res?.error) {
-        // Check if there was an error during sign-in.
-        toast.error("Sign-in failed: " + res.error); // Show error toast notification.
-      } else {
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error('Sign-up failed: ' + errorData.error); // Show error toast notification.
+        return;
+      }
+      // Attempt to sign in with the provided credentials.
+    
         toast.success("Signed in successfully!"); // Show success toast notification.
         router.push("/dashboard"); // Redirect to dashboard on successful sign-in.
-      }
-    } catch (error) {
-      toast.error("An error occurred during sign-in."); // Show error toast if exception occurs.
+
     } finally {
       setIsSigningUp(false); // Reset signing-up state to false after operation.
     }

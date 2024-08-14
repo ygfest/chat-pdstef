@@ -2,8 +2,10 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-const prisma = new PrismaClient();
+import { uptime } from "process";
+import bcrypt from "bcrypt"
+import prisma from "@/prisma/prisma/db";
+import { toast } from "sonner";
 
 // Define NextAuth options
 export const authOptions: NextAuthOptions = {
@@ -21,6 +23,11 @@ export const authOptions: NextAuthOptions = {
             email: credentials?.email,
           },
         });
+        
+        if(!user){
+          //const hashedPassword = await bcrypt.hash(credentials?.password, 10)
+          toast.error("No user found :<")
+        }
 
         if (user && credentials?.password === user.password) {
           return user; // Return user object
