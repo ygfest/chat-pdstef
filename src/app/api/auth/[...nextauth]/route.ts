@@ -6,6 +6,7 @@ import { uptime } from "process";
 import bcrypt from "bcrypt"
 import prisma from "@/prisma/prisma/db";
 import { toast } from "sonner";
+import { TSignInSchema } from "@/app/(auth)/sign-in/page";
 
 // Define NextAuth options
 export const authOptions: NextAuthOptions = {
@@ -13,26 +14,25 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text", placeholder: "example@example.com" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const user = await prisma.user.findUnique({
+      credentials: {},
+      async authorize(credentials, req) {
+        const { email, password } = credentials as TSignInSchema
+        const user = await prisma.user.findFirst({
           where: {
-            email: credentials?.email,
+            email,
           },
         });
         
-        if(!user){
-          //const hashedPassword = await bcrypt.hash(credentials?.password, 10)
-          toast.error("No user found :<")
+        if(!user || !user.password){
+          toast.error("Invalid credentials")
+          return null
         }
-
-        if (user && credentials?.password === user.password) {
-          return user; // Return user object
+        const didMatch = bcrypt.compare(password, user?.password)
+        if (!didMatch) {
+          throw Error("Invalid credentials")
+          return null
         }
-        return null;
+        return user// Return user object
       },
     }),
   ],

@@ -6,7 +6,12 @@ import { useRouter } from 'next/navigation';
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
 import React, { useState } from 'react'
 import { toast } from 'sonner';
-import Confetti from 'react-confetti'
+import { signInSchema } from '@/lib/validators/auth.validators';
+signInSchema
+import z from "zod"
+//import Confetti from 'react-confetti'
+
+export type TSignInSchema = z.infer<typeof signInSchema>
 
 export default function page() {
   const router = useRouter();
@@ -17,11 +22,10 @@ export default function page() {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const formValue = {
-      email: formData.get("email"),
-      password: formData.get("password")
+    const formValue: TSignInSchema = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
     }
-
     try {
       setIsSigningIn(true);
 
@@ -48,7 +52,7 @@ export default function page() {
   }
   return (
     <div className='flex w-screen h-screen justify-center items-center bg-zinc-950'>
-      <div className='flex p-4 flex-col text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[450px] gap-y-4 my-8'>
+      <div className='flex p-4 flex-col text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[400px] gap-y-4 my-8'>
         <form className='flex flex-col gap-4 mx-4' onSubmit={handleSignIn}>
           <h2 className='text-2xl font-semibold'>Sign in to your account</h2>
           <label>
@@ -95,8 +99,6 @@ export default function page() {
          
         </form>
       </div>
-
-      {isSigningIn && <Confetti/>}
       
     </div>
   )

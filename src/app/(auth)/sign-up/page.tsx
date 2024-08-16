@@ -7,6 +7,10 @@ import { signIn } from "next-auth/react"; // Importing signIn function from next
 import { useRouter } from "next/navigation"; // Importing useRouter for client-side routing.
 import { toast } from "sonner"; // Importing toast for displaying notifications.
 import bcrypt from "bcrypt"
+import z from "zod"
+import { signUpSchema } from "@/lib/validators/auth.validators";
+
+export type TSignUpSchema = z.infer<typeof signUpSchema>;
 
 export default function Page() { // Define a React functional component named Page.
   const router = useRouter(); // Initialize Next.js router for navigation.
@@ -14,13 +18,15 @@ export default function Page() { // Define a React functional component named Pa
   const [isConfirmPasswordVisible, setISConfirmPasswordVisible] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false); // State to indicate if sign-up process is ongoing.
 
+  
+
   // Function to handle form submission for signing up.
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // Prevent default form submission behavior.
 
     // Retrieve form data using FormData API.
     const formData = new FormData(e.currentTarget);
-    const formValue = {
+    const formValue: TSignUpSchema = { 
       email: formData.get("email") as string, // Get email value from form data.
       password: formData.get("password") as string, // Get password value from form data.
       confirmPassword: formData.get("confirmPassword") as string, // Get confirmPassword value from form data.
@@ -44,8 +50,6 @@ export default function Page() { // Define a React functional component named Pa
         toast.error('Sign-up failed: ' + errorData.error); // Show error toast notification.
         return;
       }
-      // Attempt to sign in with the provided credentials.
-    
         toast.success("Signed in successfully!"); // Show success toast notification.
         router.push("/dashboard"); // Redirect to dashboard on successful sign-in.
 
@@ -56,7 +60,7 @@ export default function Page() { // Define a React functional component named Pa
 
   return (
     <div className="flex w-screen h-screen justify-center items-center bg-zinc-950">
-      <div className="flex flex-col text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[500px] gap-y-4 my-8">
+      <div className="flex flex-col p-4 text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[500px] gap-y-4 my-8">
         <form className="flex flex-col gap-4 mx-4" onSubmit={handleSignUp}>
           <h2 className="text-2xl font-semibold">Create your account</h2>
           <label>
@@ -113,7 +117,7 @@ export default function Page() { // Define a React functional component named Pa
             type="submit" // Submit button for the form.
             className="flex w-full bg-emerald-500 text-white justify-center items-center rounded-md hover:bg-emerald-600 h-[3rem]"
           >
-            {isSigningUp ? "Signing Up..." : "Sign Up"} // Conditional button text based on signing-up state.
+            {isSigningUp ? "Signing Up..." : "Sign Up"}
           </button>
           <p className="text-center">
             Already have an account?{" "}
