@@ -9,6 +9,9 @@ import { toast } from "sonner"; // Importing toast for displaying notifications.
 import bcrypt from "bcrypt"
 import z from "zod"
 import { signUpSchema } from "@/lib/validators/auth.validators";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form"; // Import useForm hook for form handling.
+
 
 export type TSignUpSchema = z.infer<typeof signUpSchema>;
 
@@ -17,11 +20,21 @@ export default function Page() { // Define a React functional component named Pa
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State to toggle password visibility.
   const [isConfirmPasswordVisible, setISConfirmPasswordVisible] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false); // State to indicate if sign-up process is ongoing.
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TSignUpSchema>({
+    resolver: zodResolver(signUpSchema),
+  })
 
+  const handleSignUp = async (formValue: TSignUpSchema) => {
+    console.log(formValue.email, formValue.password);
   
 
   // Function to handle form submission for signing up.
-  async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
+ {/* async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // Prevent default form submission behavior.
 
     // Retrieve form data using FormData API.
@@ -32,7 +45,7 @@ export default function Page() { // Define a React functional component named Pa
       confirmPassword: formData.get("confirmPassword") as string, // Get confirmPassword value from form data.
     };
 
-    console.log(formValue.email, formValue.password);
+    console.log(formValue.email, formValue.password);*/}
 
     try {
       setIsSigningUp(true); // Set signing-up state to true to indicate loading.
@@ -57,32 +70,37 @@ export default function Page() { // Define a React functional component named Pa
       setIsSigningUp(false); // Reset signing-up state to false after operation.
     }
   }
+  
 
   return (
     <div className="flex w-screen h-screen justify-center items-center bg-zinc-950">
-      <div className="flex flex-col p-4 text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[500px] gap-y-4 my-8">
-        <form className="flex flex-col gap-4 mx-4" onSubmit={handleSignUp}>
+      <div className="flex  flex-col p-4 text-zinc-100 justify-center bg-zinc-800 rounded-lg w-[90%] max-w-[600px] h-[500px] max-h-[550px] gap-y-4 my-8">
+        <form className="flex flex-col gap-4 mx-4" onSubmit={handleSubmit(handleSignUp)}>
           <h2 className="text-2xl font-semibold">Create your account</h2>
           <label>
             Email
             <input
+              {...register("email")}
               name="email" // Name attribute used to retrieve value from FormData.
               type="email" // Input type for email.
               placeholder="Enter username"
               className="flex w-full p-4 bg-zinc-700 text-white h-[3rem] rounded-md"
               required // Input is required for form submission.
             />
+            {errors.email && <span className="text-red-500">{errors.email.message}</span>}
           </label>
           <label>
             <p>Password</p>
             <div className="relative">
               <input
+                {...register("password")}
                 name="password" // Name attribute used to retrieve value from FormData.
                 type={isPasswordVisible ? "text" : "password"} // Conditional input type based on visibility state.
                 placeholder="Enter password"
                 className="flex w-full p-4 bg-zinc-700 text-white h-[3rem] rounded-md"
                 required // Input is required for form submission.
               />
+              {errors.password && <span className="text-red-500">{errors.password.message}</span>}
               <button
                 type="button" // Button to toggle password visibility.
                 className="absolute right-4 top-1/2 transform -translate-y-1/2"
@@ -96,15 +114,17 @@ export default function Page() { // Define a React functional component named Pa
             <div className="relative">
             <p>Confirm Password</p>
             <input
+              {...register("confirmPassword")}
               name="confirmPassword" // Name attribute used to retrieve value from FormData.
               type={isConfirmPasswordVisible ? "text" : "password"}
               placeholder="Confirm password"
               className="flex w-full p-4 bg-zinc-700 text-white h-[3rem] rounded-md"
               required // Input is required for form submission.
             />
+            {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword.message}</span>}
             <button 
               type="button"
-              className="absolute right-4 top-4 transform -translate-y-1/2"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2"
               onClick={()=> setISConfirmPasswordVisible((prevState) => !prevState) }
               >
                 {isConfirmPasswordVisible ? <FaRegEye/> : <FaRegEyeSlash/>}
